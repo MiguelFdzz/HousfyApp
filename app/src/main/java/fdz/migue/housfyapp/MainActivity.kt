@@ -47,6 +47,7 @@ import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.internal.composableLambda
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,6 +61,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import fdz.migue.housfyapp.ui.theme.HousfyAppTheme
 import kotlinx.coroutines.launch
@@ -74,7 +78,11 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
+@Preview
+@Composable
+fun Preview(){
+    PantallaPrincipal()
+}
 
 @Composable
 fun PantallaPrincipal(modifier: Modifier = Modifier){
@@ -82,12 +90,18 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
         initialValue = DrawerValue.Closed
     )
     val scope = rememberCoroutineScope()
+    val navController = rememberNavController()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                DrawerContent()
+                DrawerContent(
+                    onNavigate = { route ->
+                        scope.launch { drawerState.close() }
+                        navController.navigate(route)
+                    }
+                )
             }
         }
     ) {
@@ -102,20 +116,124 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
                 })
             }
         ) { padding ->
-            ScreenContent(modifier = Modifier.padding(padding))
+            NavHost(
+                navController = navController,
+                startDestination = "home",
+                modifier = Modifier.padding(padding)
+            ) {
+                composable("profileedit") { PEditScreen() }
+
+                composable("home") { HomeScreen() }
+                composable("tasks") { TaskScreen() }
+                composable("activities") { ActivitiesScreen() }
+                composable("shopping") { ShoppingScreen() }
+                composable("chat") { ChatScreen() }
+                composable("conf") { SettingsScreen() }
+            }
+        }
+    }
+}
+//----------------------------------------------------------------------------------------------------
+//-------------------------------------------- Screens -----------------------------------------------
+//----------------------------------------------------------------------------------------------------
+@Composable
+fun PEditScreen(modifier: Modifier = Modifier){
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item{
+            RoundedBackground{
+                Text("¡Bienvenid@ al editor del perfil", fontSize = 25.sp, textAlign = TextAlign.Center)
+            }
         }
     }
 }
 
 @Composable
-fun DrawerContent(modifier: Modifier = Modifier){
-    ProfileContent()
-    HorizontalDivider()
-    MenuItemsContent()
+fun ChatScreen(modifier: Modifier = Modifier){
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item{
+            RoundedBackground{
+                Text("¡Bienvenid@ al chat", fontSize = 25.sp, textAlign = TextAlign.Center)
+            }
+        }
+    }
 }
 
 @Composable
-fun ScreenContent(modifier: Modifier = Modifier){
+fun ShoppingScreen(modifier: Modifier = Modifier){
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item{
+            RoundedBackground{
+                Text("¡Bienvenid@ a la lista de la compra", fontSize = 25.sp, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}
+
+@Composable
+fun ActivitiesScreen(modifier: Modifier = Modifier){
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item{
+            RoundedBackground{
+                Text("¡Bienvenid@ a las Actividades", fontSize = 25.sp, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskScreen(modifier: Modifier = Modifier){
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item{
+            RoundedBackground{
+                Text("¡Bienvenid@ a las tareas", fontSize = 25.sp, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}
+
+@Composable
+fun SettingsScreen(modifier: Modifier = Modifier){
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        item{
+            RoundedBackground{
+                Text("¡Bienvenid@ a las settings", fontSize = 25.sp, textAlign = TextAlign.Center)
+            }
+        }
+    }
+}
+
+@Composable
+fun HomeScreen(modifier: Modifier = Modifier){
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -127,6 +245,58 @@ fun ScreenContent(modifier: Modifier = Modifier){
                 Text("¡Bienvenid@ a Housfy, Maria José!", fontSize = 25.sp, textAlign = TextAlign.Center)
             }
         }
+    }
+}
+
+//----------------------------------------------------------------------------------------------------
+//-------------------------------------------- Drawer ------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+
+@Composable
+fun DrawerContent(
+    modifier: Modifier = Modifier,
+    onNavigate: (String) -> Unit = {}
+){
+    ProfileContent(onEditProfile = {onNavigate("profileedit")})
+    HorizontalDivider()
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+    ) {
+        MenuItem(
+            icon = Icons.Default.Home,
+            text = "Página de inicio",
+            onClick = {onNavigate("home")}
+        )
+        MenuItem(
+            icon = Icons.Default.AddCircle,
+            text = "Tareas",
+            onClick = {onNavigate("tasks")}
+        )
+        MenuItem(
+            icon = Icons.Default.DateRange,
+            text = "Actividades",
+            onClick = {onNavigate("activities")}
+        )
+        MenuItem(
+            icon = Icons.Default.ShoppingCart,
+            text = "Lista de la compra",
+            onClick = {onNavigate("shopping")}
+        )
+        MenuItem(
+            icon = Icons.Default.MailOutline,
+            text = "Chat Grupal",
+            onClick = {onNavigate("chat")}
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+        HorizontalDivider()
+
+        MenuItem(
+            icon = Icons.Default.Settings,
+            text = "Configuración",
+            onClick = {onNavigate("conf")}
+        )
     }
 }
 
@@ -159,7 +329,8 @@ fun TopBar(
 @Composable
 fun ProfileContent(
     modifier: Modifier = Modifier,
-    photoUrl: String? = null
+    photoUrl: String? = null,
+    onEditProfile: () -> Unit = {}
 ) {
     Row(
         modifier = modifier
@@ -211,55 +382,16 @@ fun ProfileContent(
             modifier = Modifier
                 .size(30.dp)
                 .padding(end=8.dp)
-                .clickable(
-                    onClick = {}
-                )
+                .clickable{
+                    onEditProfile()
+                }
         )
     }
 }
 
-@Composable
-fun MenuItemsContent(modifier: Modifier = Modifier) {
-    Column(
-        modifier = Modifier
-            .padding(8.dp)
-    ) {
-        MenuItem(
-            icon = Icons.Default.Home,
-            text = "Página de inicio"
-        )
-        MenuItem(
-            icon = Icons.Default.AddCircle,
-            text = "Tareas"
-        )
-        MenuItem(
-            icon = Icons.Default.DateRange,
-            text = "Actividades"
-        )
-        MenuItem(
-            icon = Icons.Default.ShoppingCart,
-            text = "Lista de la compra"
-        )
-        MenuItem(
-            icon = Icons.Default.MailOutline,
-            text = "Chat Grupal"
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-        HorizontalDivider()
-
-        MenuItem(
-            icon = Icons.Default.Settings,
-            text = "Configuración"
-        )
-    }
-}
-
-@Preview
-@Composable
-fun Preview(){
-    PantallaPrincipal()
-}
+//----------------------------------------------------------------------------------------------------
+//----------------------------------------- Items to use ---------------------------------------------
+//----------------------------------------------------------------------------------------------------
 
 @Composable
 fun MenuItem(
