@@ -2,12 +2,12 @@
 
 package fdz.migue.housfyapp
 
+import android.icu.text.CaseMap
 import android.os.Bundle
-import android.view.MenuItem
+import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +33,9 @@ import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -43,20 +46,25 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.internal.composableLambda
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -65,7 +73,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import fdz.migue.housfyapp.ui.theme.HousfyAppTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -118,7 +125,7 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
         ) { padding ->
             NavHost(
                 navController = navController,
-                startDestination = "home",
+                startDestination = "tasks",
                 modifier = Modifier.padding(padding)
             ) {
                 composable("profileedit") { PEditScreen() }
@@ -133,6 +140,7 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
         }
     }
 }
+
 //----------------------------------------------------------------------------------------------------
 //-------------------------------------------- Screens -----------------------------------------------
 //----------------------------------------------------------------------------------------------------
@@ -202,15 +210,32 @@ fun ActivitiesScreen(modifier: Modifier = Modifier){
 
 @Composable
 fun TaskScreen(modifier: Modifier = Modifier){
-    LazyColumn(
+    RoundedBackground(
         modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
-        item{
-            RoundedBackground{
-                Text("¡Bienvenid@ a las tareas", fontSize = 25.sp, textAlign = TextAlign.Center)
+        LazyColumn(
+            modifier = modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item{
+                Text("Lista de Tareas", fontSize = 30.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace)
+            }
+            item {
+                Button(
+                    onClick = { /* TODO: acción para crear tarea */ },
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth(0.8f) // que no ocupe todo el ancho
+                ) {
+                    Text("➕ Crear Tarea")
+                }
+            }
+            items(5) { index ->
+                TaskCard(
+                    text = "Tarea ${index +1}"
+                )
             }
         }
     }
@@ -381,8 +406,8 @@ fun ProfileContent(
             contentDescription = "Editar perfil",
             modifier = Modifier
                 .size(30.dp)
-                .padding(end=8.dp)
-                .clickable{
+                .padding(end = 8.dp)
+                .clickable {
                     onEditProfile()
                 }
         )
@@ -424,6 +449,34 @@ fun MenuItem(
             text = text,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(start = 12.dp)
+        )
+    }
+}
+
+@Composable
+fun TaskCard(
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    var isDone by remember { mutableStateOf(false) } // estado local
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp, horizontal = 8.dp)
+            .clickable { isDone = !isDone }, // cambia el estado al clickar
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceBright
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(16.dp),
+            style = MaterialTheme.typography.bodyLarge.copy(
+                textDecoration = if (isDone) TextDecoration.LineThrough else TextDecoration.None
+            )
         )
     }
 }
