@@ -78,19 +78,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.DragHandle
@@ -114,15 +109,14 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
 import kotlin.math.roundToInt
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.withStyle
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -227,19 +221,93 @@ fun ChatScreen(modifier: Modifier = Modifier){
 
 @Composable
 fun ShoppingScreen(modifier: Modifier = Modifier){
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        item{
-            RoundedBackground{
-                Text("¡Bienvenid@ a la lista de la compra", fontSize = 25.sp, textAlign = TextAlign.Center)
+    var carts by remember { mutableStateOf(listOf<ShoppingCart>()) }
+    var showCreateDialog by remember { mutableStateOf(false) }
+    var selectedCart by remember { mutableStateOf<ShoppingCart?>(null) }
+
+    if (selectedCart != null) {
+        CartEditorScreen(
+            cart = selectedCart!!,
+            onBack = { selectedCart = null },
+            onSave = { updatedCart ->
+                carts = carts.map { if (it.id == updatedCart.id) updatedCart else it }
+                selectedCart = null
             }
+        )
+    } else {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            RoundedBackground {
+                Text(
+                    "¡Bienvenid@ a la lista de la compra",
+                    fontSize = 25.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { showCreateDialog = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Añadir carrito")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Crear nuevo carrito")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (carts.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "No hay carritos aún.\n¡Crea tu primer carrito!",
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(
+                        items = carts,
+                        key = { it.id }
+                    ) { cart ->
+                        SwipeToDeleteCart(
+                            cart = cart,
+                            onDelete = { carts = carts.filter { it.id != cart.id } },
+                            onClick = { selectedCart = cart }
+                        )
+                    }
+                }
+            }
+        }
+
+        if (showCreateDialog) {
+            CreateCartDialog(
+                onDismiss = { showCreateDialog = false },
+                onConfirm = { name ->
+                    carts = carts + ShoppingCart(
+                        id = UUID.randomUUID().toString(),
+                        name = name,
+                        content = ""
+                    )
+                    showCreateDialog = false
+                }
+            )
         }
     }
 }
+
 
 @Composable
 fun ActivitiesScreen(modifier: Modifier = Modifier) {
@@ -1130,3 +1198,305 @@ fun RoundedBackground(
         content() // aquí se renderiza lo que le pases
     }
 }
+
+@Composable
+fun SwipeToDeleteCart(
+    cart: ShoppingCart,
+    onDelete: () -> Unit,
+    onClick: () -> Unit
+) {
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    val deleteThreshold = 200f
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+    ) {
+        // Fondo rojo al deslizar
+        if (offsetX > 0) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Color.Red.copy(alpha = (offsetX / deleteThreshold).coerceIn(0f, 1f)),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Borrar",
+                    tint = Color.White,
+                    modifier = Modifier.padding(end = 32.dp)
+                )
+            }
+        }
+
+        // Tarjeta del carrito
+        Card(
+            modifier = Modifier
+                .fillMaxSize()
+                .offset { IntOffset(offsetX.roundToInt(), 0) }
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures(
+                        onDragEnd = {
+                            if (offsetX >= deleteThreshold) {
+                                onDelete()
+                            }
+                            offsetX = 0f
+                        },
+                        onHorizontalDrag = { _, dragAmount ->
+                            val newOffset = offsetX + dragAmount
+                            offsetX = newOffset.coerceIn(0f, 300f)
+                        }
+                    )
+                }
+                .clickable { onClick() },
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Default.ShoppingCart,
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        cart.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        if (cart.content.isBlank()) "Vacío" else "${cart.content.lines().size} líneas",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Icon(
+                    Icons.Default.ChevronRight,
+                    contentDescription = "Abrir",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun CreateCartDialog(
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    var cartName by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Crear nuevo carrito") },
+        text = {
+            OutlinedTextField(
+                value = cartName,
+                onValueChange = { cartName = it },
+                label = { Text("Nombre del carrito") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = { if (cartName.isNotBlank()) onConfirm(cartName) },
+                enabled = cartName.isNotBlank()
+            ) {
+                Text("Crear")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}
+
+@Composable
+fun CartEditorScreen(
+    cart: ShoppingCart,
+    onBack: () -> Unit,
+    onSave: (ShoppingCart) -> Unit
+) {
+    var content by remember { mutableStateOf(cart.content) }
+    var isPreviewMode by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Barra superior
+        Surface(
+            shadowElevation = 4.dp,
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {
+                    onSave(cart.copy(content = content))
+                    onBack()
+                }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+                }
+                Text(
+                    cart.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = { isPreviewMode = !isPreviewMode }) {
+                    Icon(
+                        if (isPreviewMode) Icons.Default.Edit else Icons.Default.Visibility,
+                        contentDescription = if (isPreviewMode) "Editar" else "Vista previa"
+                    )
+                }
+            }
+        }
+
+        if (isPreviewMode) {
+            // Vista previa Markdown
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                item {
+                    MarkdownPreview(content)
+                }
+            }
+        } else {
+            // Editor
+            OutlinedTextField(
+                value = content,
+                onValueChange = { content = it },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                placeholder = {
+                    Text(
+                        "Escribe aquí tu lista...\n\n" +
+                                "Puedes usar Markdown:\n" +
+                                "# Título\n" +
+                                "## Subtítulo\n" +
+                                "- Item\n" +
+                                "**negrita** *cursiva*"
+                    )
+                },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = FontFamily.Monospace
+                )
+            )
+        }
+    }
+}
+
+@Composable
+fun MarkdownPreview(markdown: String) {
+    val lines = markdown.lines()
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        lines.forEach { line ->
+            when {
+                line.startsWith("# ") -> {
+                    Text(
+                        line.removePrefix("# "),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                line.startsWith("## ") -> {
+                    Text(
+                        line.removePrefix("## "),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                line.startsWith("### ") -> {
+                    Text(
+                        line.removePrefix("### "),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                line.startsWith("- ") || line.startsWith("* ") -> {
+                    Row {
+                        Text("• ", style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            parseInlineMarkdown(line.substring(2)),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+                line.isNotBlank() -> {
+                    Text(
+                        parseInlineMarkdown(line),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                else -> Spacer(modifier = Modifier.height(4.dp))
+            }
+        }
+    }
+}
+
+@Composable
+fun parseInlineMarkdown(text: String): AnnotatedString {
+    return buildAnnotatedString {
+        var i = 0
+        while (i < text.length) {
+            when {
+                text.startsWith("**", i) -> {
+                    val end = text.indexOf("**", i + 2)
+                    if (end != -1) {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append(text.substring(i + 2, end))
+                        }
+                        i = end + 2
+                    } else {
+                        append(text[i])
+                        i++
+                    }
+                }
+                text.startsWith("*", i) -> {
+                    val end = text.indexOf("*", i + 1)
+                    if (end != -1) {
+                        withStyle(style = SpanStyle(fontStyle = FontStyle.Italic)) {
+                            append(text.substring(i + 1, end))
+                        }
+                        i = end + 1
+                    } else {
+                        append(text[i])
+                        i++
+                    }
+                }
+                else -> {
+                    append(text[i])
+                    i++
+                }
+            }
+        }
+    }
+}
+
+data class ShoppingCart(
+    val id: String,
+    val name: String,
+    val content: String
+)
