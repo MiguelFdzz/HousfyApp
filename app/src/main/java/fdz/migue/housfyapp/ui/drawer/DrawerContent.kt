@@ -1,0 +1,65 @@
+package fdz.migue.housfyapp.ui.drawer
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.ui.components.MenuItem
+
+@Composable
+fun DrawerContent(
+    modifier: Modifier = Modifier,
+    onNavigate: (String) -> Unit = {}
+){
+    ProfileContent(onEditProfile = {onNavigate("profileedit")})
+    HorizontalDivider()
+    Column(
+        modifier = Modifier
+            .padding(8.dp)
+    ) {
+        MenuItem(
+            icon = Icons.Default.Home,
+            text = "Página de inicio",
+            onClick = {onNavigate("home")}
+        )
+        MenuItem(
+            icon = Icons.Default.AddCircle,
+            text = "Tareas",
+            onClick = {onNavigate("tasks")}
+        )
+        MenuItem(
+            icon = Icons.Default.DateRange,
+            text = "Actividades",
+            onClick = {onNavigate("activities")}
+        )
+        MenuItem(
+            icon = Icons.Default.ShoppingCart,
+            text = "Lista de la compra",
+            onClick = {onNavigate("shopping")}
+        )
+        MenuItem(
+            icon = Icons.Default.MailOutline,
+            text = "Chat Grupal",
+            onClick = {onNavigate("chat")}
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+        HorizontalDivider()
+
+        MenuItem(
+            icon = Icons.Default.Settings,
+            text = "Configuración",
+            onClick = {onNavigate("conf")}
+        )
+    }
+}
