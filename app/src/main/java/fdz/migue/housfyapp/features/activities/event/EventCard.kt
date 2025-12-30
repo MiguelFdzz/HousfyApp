@@ -19,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import fdz.migue.housfyapp.features.activities.calendar.CalendarEvent
+import fdz.migue.housfyapp.dao.activities.CalendarEvent
 
 @Composable
 fun EventCard(

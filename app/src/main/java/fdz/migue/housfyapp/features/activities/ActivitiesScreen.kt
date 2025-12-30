@@ -16,6 +16,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import fdz.migue.housfyapp.features.activities.calendar.CalendarEvent
+import fdz.migue.housfyapp.dao.activities.CalendarEvent
 import fdz.migue.housfyapp.features.activities.calendar.CalendarView
 import fdz.migue.housfyapp.features.activities.event.EventCard
 import fdz.migue.housfyapp.features.activities.event.CreateEventDialog
@@ -38,11 +39,14 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
-fun ActivitiesScreen(modifier: Modifier = Modifier) {
+fun ActivitiesScreen(
+    viewModel: CalendarEventViewModel,
+    modifier: Modifier = Modifier
+) {
+    val allEvents by viewModel.allEvents.collectAsState(initial = emptyList())
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var showCreateEventDialog by remember { mutableStateOf(false) }
-    var events by remember { mutableStateOf<List<CalendarEvent>>(emptyList()) }
 
     LazyColumn(
         modifier = modifier
@@ -71,14 +75,14 @@ fun ActivitiesScreen(modifier: Modifier = Modifier) {
                         onDateSelected = { date ->
                             selectedDate = date
                         },
-                        events = events
+                        events = allEvents
                     )
                 }
             }
         }
 
         selectedDate?.let { date ->
-            val dayEvents = events.filter { it.date == date }
+            val dayEvents = allEvents.filter { it.date == date }
 
             item {
                 RoundedBackground(modifier = Modifier.padding(vertical = 8.dp)) {
@@ -111,14 +115,15 @@ fun ActivitiesScreen(modifier: Modifier = Modifier) {
                             Text(
                                 "No hay eventos para este día",
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
                                     .padding(vertical = 16.dp)
                             )
                         } else {
                             dayEvents.forEach { event ->
                                 EventCard(
                                     event = event,
-                                    onDelete = { events = events.filter { it.id != event.id } }
+                                    onDelete = { viewModel.deleteEvent(event) }
                                 )
                             }
                         }
@@ -133,10 +138,12 @@ fun ActivitiesScreen(modifier: Modifier = Modifier) {
             date = selectedDate!!,
             onDismiss = { showCreateEventDialog = false },
             onSave = { title, description ->
-                events = events + CalendarEvent(
-                    date = selectedDate!!,
-                    title = title,
-                    description = description
+                viewModel.saveEvent(
+                    CalendarEvent(
+                        date = selectedDate!!,
+                        title = title,
+                        description = description
+                    )
                 )
                 showCreateEventDialog = false
             }

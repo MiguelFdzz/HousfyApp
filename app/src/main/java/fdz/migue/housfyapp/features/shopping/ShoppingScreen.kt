@@ -27,94 +27,95 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import fdz.migue.housfyapp.dao.shopping.ShoppingCart
 import fdz.migue.housfyapp.ui.components.RoundedBackground
 import java.util.UUID
 
 @Composable
-fun ShoppingScreen(modifier: Modifier = Modifier){
-    var carts by remember { mutableStateOf(listOf<ShoppingCart>()) }
+fun ShoppingScreen(
+    modifier: Modifier = Modifier,
+    viewModel: ShoppingViewModel
+) {
+    val carts by viewModel.carts.collectAsStateWithLifecycle()
+    val selectedCart by viewModel.selectedCart.collectAsStateWithLifecycle()
+
     var showCreateDialog by remember { mutableStateOf(false) }
-    var selectedCart by remember { mutableStateOf<ShoppingCart?>(null) }
 
     if (selectedCart != null) {
         CartEditorScreen(
             cart = selectedCart!!,
-            onBack = { selectedCart = null },
+            onBack = { viewModel.clearSelection() },
             onSave = { updatedCart ->
-                carts = carts.map { if (it.id == updatedCart.id) updatedCart else it }
-                selectedCart = null
+                viewModel.updateCart(updatedCart)
+                viewModel.clearSelection()
             }
         )
-    } else {
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            RoundedBackground {
-                Text(
-                    "¡Bienvenid@ a la lista de la compra",
-                    fontSize = 25.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
+        return
+    }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { showCreateDialog = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Add, contentDescription = "Añadir carrito")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Crear nuevo carrito")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (carts.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "No hay carritos aún.\n¡Crea tu primer carrito!",
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = carts,
-                        key = { it.id }
-                    ) { cart ->
-                        SwipeToDeleteCart(
-                            cart = cart,
-                            onDelete = { carts = carts.filter { it.id != cart.id } },
-                            onClick = { selectedCart = cart }
-                        )
-                    }
-                }
-            }
-        }
-
-        if (showCreateDialog) {
-            CreateCartDialog(
-                onDismiss = { showCreateDialog = false },
-                onConfirm = { name ->
-                    carts = carts + ShoppingCart(
-                        id = UUID.randomUUID().toString(),
-                        name = name,
-                        content = ""
-                    )
-                    showCreateDialog = false
-                }
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        RoundedBackground {
+            Text(
+                "¡Bienvenid@ a la lista de la compra",
+                fontSize = 25.sp,
+                textAlign = TextAlign.Center
             )
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { showCreateDialog = true },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(Icons.Default.Add, contentDescription = null)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Crear nuevo carrito")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (carts.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "No hay carritos aún.\n¡Crea tu primer carrito!",
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(
+                    items = carts,
+                    key = { it.id }
+                ) { cart ->
+                    SwipeToDeleteCart(
+                        cart = cart,
+                        onDelete = { viewModel.deleteCart(cart) },
+                        onClick = { viewModel.selectCart(cart) }
+                    )
+                }
+            }
+        }
+    }
+
+    if (showCreateDialog) {
+        CreateCartDialog(
+            onDismiss = { showCreateDialog = false },
+            onConfirm = { name ->
+                viewModel.createCart(name)
+                showCreateDialog = false
+            }
+        )
     }
 }

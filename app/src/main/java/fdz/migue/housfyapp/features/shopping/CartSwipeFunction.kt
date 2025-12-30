@@ -36,6 +36,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.dao.shopping.ShoppingCart
 import kotlin.math.roundToInt
 
 @Composable

@@ -65,11 +65,12 @@ import kotlin.math.roundToInt
 fun TaskCard(
     text: String,
     onDelete: () -> Unit,
+    isDone: Boolean,
+    onToggleDone: () -> Unit,
     onTaskUpdated: (String) -> Unit,
     modifier: Modifier = Modifier,
     elevation: Dp = 4.dp,
 ) {
-    var isDone by remember { mutableStateOf(false) }
     var isEditing by remember { mutableStateOf(false) }
     var editedText by rememberSaveable(text) { mutableStateOf(text) }
     var textFieldValue by remember { mutableStateOf(TextFieldValue()) }
@@ -143,16 +144,6 @@ fun TaskCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
-            // Detectar toques fuera del TextField cuando está editando
-            .pointerInput(isEditing) {
-                if (isEditing) {
-                    detectTapGestures(
-                        onTap = {
-                            finishEditing()
-                        }
-                    )
-                }
-            }
     ) {
         Card(
             modifier = Modifier
@@ -168,18 +159,18 @@ fun TaskCard(
 
                             coroutineScope.launch {
                                 when {
-                                    // Desliza a la derecha → Eliminar
+                                    // Derecha Eliminar
                                     offsetX > 200f -> {
                                         isDeleting = true
                                         delay(50)
                                         onDelete()
                                     }
-                                    // Desliza a la izquierda → Editar
+                                    // Izquierda Editar
                                     offsetX < -200f -> {
                                         offsetX = 0f
                                         isEditing = true
                                     }
-                                    // Vuelve a la posición original si no hizo ninguna acción
+                                    // Vuelve a la posicion original si no hizo ninguna acción
                                     else -> {
                                         offsetX = 0f
                                     }
@@ -198,7 +189,7 @@ fun TaskCard(
                 }
                 .clickable(
                     enabled = !isEditing && !isDeleting,
-                    onClick = { isDone = !isDone }
+                    onClick = { onToggleDone() }
                 ),
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(

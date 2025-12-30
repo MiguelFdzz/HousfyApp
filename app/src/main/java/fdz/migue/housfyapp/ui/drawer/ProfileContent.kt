@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 @Composable
 fun ProfileContent(
     modifier: Modifier = Modifier,
+    name: String,
     photoUrl: String? = null,
     onEditProfile: () -> Unit = {}
 ) {
@@ -72,7 +73,7 @@ fun ProfileContent(
                     )
             )
         }
-        Text(text = "Maria José", fontSize = 17.sp)
+        Text(text = name, fontSize = 17.sp)
 
         Spacer(modifier = Modifier.weight(1f))
 

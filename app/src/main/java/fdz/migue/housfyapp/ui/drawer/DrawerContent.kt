@@ -19,9 +19,13 @@ import fdz.migue.housfyapp.ui.components.MenuItem
 @Composable
 fun DrawerContent(
     modifier: Modifier = Modifier,
+    profileName: String,
     onNavigate: (String) -> Unit = {}
 ){
-    ProfileContent(onEditProfile = {onNavigate("profileedit")})
+    ProfileContent(
+        name = profileName,
+        onEditProfile = {onNavigate("profileedit") }
+    )
     HorizontalDivider()
     Column(
         modifier = Modifier

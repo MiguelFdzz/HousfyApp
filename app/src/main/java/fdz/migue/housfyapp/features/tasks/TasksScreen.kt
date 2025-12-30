@@ -8,28 +8,29 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fdz.migue.housfyapp.dao.tasks.Task
+import fdz.migue.housfyapp.dao.tasks.TaskRepository
+import fdz.migue.housfyapp.dao.tasks.TaskRepositoryImpl
+import fdz.migue.housfyapp.features.tasks.TaskViewModel
 import fdz.migue.housfyapp.ui.components.RoundedBackground
+import kotlinx.coroutines.launch
 
 @Composable
-fun TaskScreen(modifier: Modifier = Modifier) {
-
-    val tasks = remember {
-        mutableStateListOf(
-            Task(text = "Comprar comida"),
-            Task(text = "Llamar al médico"),
-            Task(text = "Estudiar Compose"),
-            Task(text = "Limpiar la casa"),
-            Task(text = "Leer un libro")
-        )
-    }
+fun TaskScreen(
+    modifier: Modifier = Modifier,
+    viewModel: TaskViewModel
+) {
+    val tasks = viewModel.tasks
+        .collectAsState(initial = emptyList())
+        .value
 
     RoundedBackground(
         modifier = modifier.padding(16.dp)
@@ -51,7 +52,9 @@ fun TaskScreen(modifier: Modifier = Modifier) {
             item {
                 Button(
                     onClick = {
-                        tasks.add(Task(text = "Nueva tarea ${tasks.size + 1}"))
+                        viewModel.insertTask(
+                            Task(text = "Nueva tarea")
+                        )
                     },
                     modifier = Modifier
                         .padding(8.dp)
@@ -64,14 +67,19 @@ fun TaskScreen(modifier: Modifier = Modifier) {
             items(tasks, key = { it.id }) { task ->
                 TaskCard(
                     text = task.text,
+                    isDone = task.isDone,
                     onDelete = {
-                        tasks.remove(task)
+                        viewModel.deleteTask(task)
                     },
                     onTaskUpdated = { newText ->
-                        val index = tasks.indexOf(task)
-                        if (index != -1) {
-                            tasks[index] = task.copy(text = newText)
-                        }
+                        viewModel.updateTask(
+                            task.copy(text = newText)
+                        )
+                    },
+                    onToggleDone = {
+                        viewModel.updateTask(
+                            task.copy(isDone = !task.isDone)
+                        )
                     }
                 )
             }

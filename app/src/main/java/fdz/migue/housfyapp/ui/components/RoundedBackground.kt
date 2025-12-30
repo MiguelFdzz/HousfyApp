@@ -19,7 +19,7 @@ fun RoundedBackground(
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     borderColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     cornerRadius: Dp = 12.dp,
-    content: @Composable () -> Unit // aquí se pasa cualquier contenido
+    content: @Composable () -> Unit
 ) {
     Box(
         modifier = modifier
