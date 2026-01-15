@@ -16,8 +16,11 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
@@ -48,6 +51,7 @@ import fdz.migue.housfyapp.features.tasks.TaskViewModel
 import fdz.migue.housfyapp.features.tasks.TaskViewModelFactory
 import fdz.migue.housfyapp.ui.components.TopBar
 import fdz.migue.housfyapp.ui.drawer.DrawerContent
+import fdz.migue.housfyapp.ui.theme.HousfyAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,92 +78,98 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
         HousfyDatabase.getDatabase(context)
     }
 
-    val taskRepository = remember {
-        TaskRepositoryImpl(database.taskDao())
-    }
-    val taskViewModel: TaskViewModel = viewModel(
-        factory = TaskViewModelFactory(taskRepository)
-    )
+    var isDarkTheme by rememberSaveable() { mutableStateOf(false) }
+    HousfyAppTheme(darkTheme = isDarkTheme) {
 
-    val profileRepository = remember {
-        ProfileRepositoryImpl(database.profileDao())
-    }
-    val profileViewModel: ProfileViewModel = viewModel(
-        factory = ProfileViewModelFactory(profileRepository)
-    )
-    val profile by profileViewModel.profile.collectAsState(initial = null)
-
-    val shoppingRepository = remember {
-        ShoppingCartRepositoryImpl(database.shoppingDao())
-    }
-    val shoppingViewModel: ShoppingViewModel = viewModel(
-        factory = ShoppingViewModelFactory(shoppingRepository)
-    )
-
-    val calendarRepository = remember {
-        CalendarEventRepositoryImpl(database.calendarEventDao())
-    }
-    val calendarEventViewModel: CalendarEventViewModel = viewModel(
-        factory = CalendarEventViewModelFactory(calendarRepository)
-    )
-
-    val drawerState = rememberDrawerState(
-        initialValue = DrawerValue.Closed
-    )
-    val scope = rememberCoroutineScope()
-    val navController = rememberNavController()
-
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                DrawerContent(
-                    viewModel = profileViewModel,
-                    onNavigate = { route ->
-                        scope.launch { drawerState.close() }
-                        navController.navigate(route)
-                    }
-                )
-            }
+        val taskRepository = remember {
+            TaskRepositoryImpl(database.taskDao())
         }
-    ) {
-        Scaffold(
-            topBar = {
-                TopBar(onOpenDrawer = {
-                    scope.launch {
-                        drawerState.apply {
-                            if (isClosed) open() else close()
+        val taskViewModel: TaskViewModel = viewModel(
+            factory = TaskViewModelFactory(taskRepository)
+        )
+
+        val profileRepository = remember {
+            ProfileRepositoryImpl(database.profileDao())
+        }
+        val profileViewModel: ProfileViewModel = viewModel(
+            factory = ProfileViewModelFactory(profileRepository)
+        )
+
+        val shoppingRepository = remember {
+            ShoppingCartRepositoryImpl(database.shoppingDao())
+        }
+        val shoppingViewModel: ShoppingViewModel = viewModel(
+            factory = ShoppingViewModelFactory(shoppingRepository)
+        )
+
+        val calendarRepository = remember {
+            CalendarEventRepositoryImpl(database.calendarEventDao())
+        }
+        val calendarEventViewModel: CalendarEventViewModel = viewModel(
+            factory = CalendarEventViewModelFactory(calendarRepository)
+        )
+
+        val drawerState = rememberDrawerState(
+            initialValue = DrawerValue.Closed
+        )
+        val scope = rememberCoroutineScope()
+        val navController = rememberNavController()
+
+
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet {
+                    DrawerContent(
+                        viewModel = profileViewModel,
+                        onNavigate = { route ->
+                            scope.launch { drawerState.close() }
+                            navController.navigate(route)
                         }
-                    }
-                })
+                    )
+                }
             }
-        ) { padding ->
-            NavHost(
-                navController = navController,
-                startDestination = "home",
-                modifier = Modifier.padding(padding)
-            ) {
-                composable("profileedit") {
-                    PEditScreen(viewModel = profileViewModel)
+        ) {
+            Scaffold(
+                topBar = {
+                    TopBar(
+                        isDarkTheme = isDarkTheme,
+                        onToggleTheme = {isDarkTheme = !isDarkTheme},
+                        onOpenDrawer = {
+                        scope.launch {
+                            drawerState.apply {
+                                if (isClosed) open() else close()
+                            }
+                        }
+                    })
                 }
-                composable("home") {
-                    HomeScreen(
-                        profileViewModel = profileViewModel,
-                        taskViewModel = taskViewModel)
+            ) { padding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = "home",
+                    modifier = Modifier.padding(padding)
+                ) {
+                    composable("profileedit") {
+                        PEditScreen(viewModel = profileViewModel)
+                    }
+                    composable("home") {
+                        HomeScreen(
+                            profileViewModel = profileViewModel,
+                            taskViewModel = taskViewModel)
+                    }
+                    composable("tasks") {
+                        TaskScreen(viewModel = taskViewModel)
+                    }
+                    composable("activities") {
+                        ActivitiesScreen(viewModel = calendarEventViewModel)
+                    }
+                    composable("shopping") {
+                        ShoppingScreen(viewModel = shoppingViewModel)
+                    }
+                    composable("chat") { ChatScreen() }
+                    composable("conf") { SettingsScreen() }
                 }
-                composable("tasks") {
-                    TaskScreen(viewModel = taskViewModel)
-                }
-                composable("activities") {
-                    ActivitiesScreen(viewModel = calendarEventViewModel)
-                }
-                composable("shopping") {
-                    ShoppingScreen(viewModel = shoppingViewModel)
-                }
-                composable("chat") { ChatScreen() }
-                composable("conf") { SettingsScreen() }
             }
         }
     }
-}
+    }

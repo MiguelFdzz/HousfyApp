@@ -1,6 +1,7 @@
 package fdz.migue.housfyapp.features.settings
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
@@ -13,7 +14,10 @@ import androidx.compose.ui.unit.sp
 import fdz.migue.housfyapp.ui.components.RoundedBackground
 
 @Composable
-fun SettingsScreen(modifier: Modifier = Modifier){
+fun SettingsScreen(
+
+    modifier: Modifier = Modifier
+){
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -21,7 +25,7 @@ fun SettingsScreen(modifier: Modifier = Modifier){
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item{
-            RoundedBackground{
+            RoundedBackground(modifier = modifier.fillMaxWidth()){
                 Text("¡Bienvenid@ a las settings", fontSize = 25.sp, textAlign = TextAlign.Center)
             }
         }

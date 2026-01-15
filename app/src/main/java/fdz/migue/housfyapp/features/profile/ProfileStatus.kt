@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,16 +31,18 @@ fun StatusOption(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = MaterialTheme.colorScheme
+
     Box(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .background(
-                if (isSelected) Color.Blue.copy(alpha = 0.1f) else Color.White
+                if (isSelected) colors.primaryContainer else colors.surface
             )
             .border(
                 width = 2.dp,
-                color = if (isSelected) Color.Blue.copy(0.2f) else Color.LightGray,
+                color = if (isSelected) colors.primary else colors.outline,
                 shape = RoundedCornerShape(12.dp)
             )
             .clickable(onClick = onClick)
@@ -60,7 +63,7 @@ fun StatusOption(
                 text = status.label,
                 fontSize = 16.sp,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (isSelected) Color.Blue.copy(alpha = 0.8f) else Color.DarkGray,
+                color = if (isSelected) colors.onPrimaryContainer else colors.onSurface,
                 modifier = Modifier
                     .weight(1f)
                     .padding(start = 12.dp)
@@ -70,7 +73,7 @@ fun StatusOption(
                 Icon(
                     imageVector = Icons.Default.CheckCircle,
                     contentDescription = "Selected",
-                    tint = Color.Blue.copy(0.6f),
+                    tint = colors.primary,
                     modifier = Modifier.size(24.dp)
                 )
             }

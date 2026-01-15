@@ -6,14 +6,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -51,9 +49,7 @@ fun PEditScreen(
             name = it.name
             selectedStatus = UserStatus.valueOf(it.status)
 
-            profileImageUri = it.profileImageUri?.let { uriString ->
-                uriString.toUri()
-            }
+            profileImageUri = it.profileImageUri?.toUri()
         }
     }
 
@@ -188,7 +184,7 @@ fun PEditScreen(
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
 
-                        UserStatus.values().forEach { status ->
+                        UserStatus.entries.forEach { status ->
                             StatusOption(
                                 status = status,
                                 isSelected = selectedStatus == status,
@@ -225,6 +221,7 @@ fun PEditScreen(
                     ) {
                         Text(
                             text = "Guardar Cambios",
+                            color = Color.White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )

@@ -1,9 +1,15 @@
 package fdz.migue.housfyapp.ui.components
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Brightness4
+import androidx.compose.material.icons.filled.Brightness7
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -18,6 +24,8 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
+    isDarkTheme: Boolean,
+    onToggleTheme: () -> Unit,
     onOpenDrawer: () -> Unit
 ) {
     TopAppBar(
@@ -38,6 +46,30 @@ fun TopBar(
         },
         title= {
             Text(text = "Housfy")
+        },
+        actions = {
+            Box(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .animateContentSize(animationSpec = tween(300)) // animación de tamaño al cambiar icono
+                    .clickable { onToggleTheme() }
+            ) {
+                Crossfade(targetState = isDarkTheme) { dark ->
+                    if (dark) {
+                        Icon(
+                            imageVector = Icons.Default.Brightness7, // sol
+                            contentDescription = "Modo Claro",
+                            modifier = Modifier.size(28.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.Brightness4, // luna
+                            contentDescription = "Modo Oscuro",
+                            modifier = Modifier.size(28.dp)
+                        )
+                    }
+                }
+            }
         }
     )
 }
