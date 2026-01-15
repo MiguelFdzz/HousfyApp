@@ -1,5 +1,6 @@
 package fdz.migue.housfyapp.features.profile
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -49,16 +50,26 @@ fun PEditScreen(
         profile?.let {
             name = it.name
             selectedStatus = UserStatus.valueOf(it.status)
-            profileImageUri = Uri.parse(it.profileImageUri)
+
+            profileImageUri = it.profileImageUri?.let { uriString ->
+                uriString.toUri()
+            }
         }
     }
 
     val context = LocalContext.current
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
-        profileImageUri = uri
+        uri?.let {
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+            context.contentResolver.takePersistableUriPermission(it, takeFlags)
+
+            profileImageUri = it
+        }
     }
 
     LazyColumn(
@@ -124,7 +135,7 @@ fun PEditScreen(
                         }
 
                         IconButton(
-                            onClick = { imagePickerLauncher.launch("image/*") },
+                            onClick = { imagePickerLauncher.launch(arrayOf("image/*"))},
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)

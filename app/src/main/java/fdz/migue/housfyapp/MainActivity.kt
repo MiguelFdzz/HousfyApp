@@ -115,7 +115,7 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
         drawerContent = {
             ModalDrawerSheet {
                 DrawerContent(
-                    profileName = profile?.name?: "Usuario",
+                    viewModel = profileViewModel,
                     onNavigate = { route ->
                         scope.launch { drawerState.close() }
                         navController.navigate(route)

@@ -12,18 +12,21 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.features.profile.ProfileViewModel
 import fdz.migue.housfyapp.ui.components.MenuItem
 
 @Composable
 fun DrawerContent(
     modifier: Modifier = Modifier,
-    profileName: String,
+    viewModel: ProfileViewModel,
     onNavigate: (String) -> Unit = {}
 ){
+    val profile = viewModel.profile.collectAsState(initial = null)
     ProfileContent(
-        name = profileName,
+        viewModel,
         onEditProfile = {onNavigate("profileedit") }
     )
     HorizontalDivider()

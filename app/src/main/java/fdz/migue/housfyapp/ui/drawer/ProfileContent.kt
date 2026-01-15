@@ -17,20 +17,24 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import fdz.migue.housfyapp.features.profile.ProfileViewModel
+import fdz.migue.housfyapp.features.profile.UserStatus
 
 @Composable
 fun ProfileContent(
+    viewModel: ProfileViewModel,
     modifier: Modifier = Modifier,
-    name: String,
-    photoUrl: String? = null,
     onEditProfile: () -> Unit = {}
 ) {
     Row(
@@ -39,9 +43,19 @@ fun ProfileContent(
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val profile by viewModel.profile.collectAsState(initial = null)
+
+        val name = profile?.name ?: "Usuario"
+        val photoUrl = profile?.profileImageUri
+        val userStatus = runCatching {
+            UserStatus.valueOf(profile?.status ?: UserStatus.ACTIVO.name)
+        }.getOrElse {
+            UserStatus.ACTIVO
+        }
+
         Box(
             modifier = modifier
-                .size(56.dp)
+                .size(75.dp)
                 .align(Alignment.Bottom)
         ) {
             if (photoUrl.isNullOrEmpty()){
@@ -59,16 +73,17 @@ fun ProfileContent(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
+                        .padding(11.dp)
                         .clip(CircleShape)
                 )
             }
             Box(
                 modifier = modifier
-                    .size(19.dp)
-                    .offset(x = 30.dp, y = 30.dp)
+                    .size(24.dp)
+                    .offset(x = 45.dp, y = 45.dp)
                     .padding(2.dp)
                     .background(
-                        color = Color.Green,
+                        color = userStatus.color,
                         shape = CircleShape
                     )
             )
