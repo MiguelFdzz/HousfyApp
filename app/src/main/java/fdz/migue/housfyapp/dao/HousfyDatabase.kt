@@ -7,6 +7,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import fdz.migue.housfyapp.dao.activities.CalendarEvent
 import fdz.migue.housfyapp.dao.activities.CalendarEventDao
+import fdz.migue.housfyapp.dao.chat.ChatDAO
+import fdz.migue.housfyapp.dao.chat.ChatMessage
 import fdz.migue.housfyapp.dao.profile.Profile
 import fdz.migue.housfyapp.dao.profile.ProfileDao
 import fdz.migue.housfyapp.dao.shopping.ShoppingCart
@@ -15,8 +17,8 @@ import fdz.migue.housfyapp.dao.tasks.Task
 import fdz.migue.housfyapp.dao.tasks.TaskDao
 
 @Database(
-    entities = [Task::class, Profile::class, ShoppingCart::class, CalendarEvent::class],
-    version = 4
+    entities = [Task::class, Profile::class, ShoppingCart::class, CalendarEvent::class, ChatMessage::class],
+    version = 5
 )
 @TypeConverters(Converters::class)
 abstract class HousfyDatabase : RoomDatabase() {
@@ -25,6 +27,7 @@ abstract class HousfyDatabase : RoomDatabase() {
     abstract fun profileDao(): ProfileDao
     abstract fun shoppingDao(): ShoppingDao
     abstract fun calendarEventDao(): CalendarEventDao
+    abstract fun chatDao(): ChatDAO
 
     companion object {
         @Volatile

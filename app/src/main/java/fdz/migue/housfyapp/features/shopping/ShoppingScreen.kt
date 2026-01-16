@@ -24,13 +24,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import fdz.migue.housfyapp.dao.shopping.ShoppingCart
 import fdz.migue.housfyapp.ui.components.RoundedBackground
-import java.util.UUID
 
 @Composable
 fun ShoppingScreen(
@@ -61,9 +61,12 @@ fun ShoppingScreen(
     ) {
         RoundedBackground {
             Text(
-                "¡Bienvenid@ a la lista de la compra",
-                fontSize = 25.sp,
-                textAlign = TextAlign.Center
+                "Lista de la compra",
+                textAlign = TextAlign.Center,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily.Monospace,
+                modifier = Modifier.fillMaxWidth()
             )
         }
 

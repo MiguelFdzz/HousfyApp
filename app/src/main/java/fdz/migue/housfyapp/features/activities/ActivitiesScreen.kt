@@ -30,8 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fdz.migue.housfyapp.dao.activities.CalendarEvent
 import fdz.migue.housfyapp.features.activities.calendar.CalendarView
-import fdz.migue.housfyapp.features.activities.event.EventCard
 import fdz.migue.housfyapp.features.activities.event.CreateEventDialog
+import fdz.migue.housfyapp.features.activities.event.EventCard
 import fdz.migue.housfyapp.ui.components.RoundedBackground
 import java.time.LocalDate
 import java.time.YearMonth
