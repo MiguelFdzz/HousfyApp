@@ -15,10 +15,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.features.activities.CalendarEventViewModel
 import fdz.migue.housfyapp.features.profile.ProfileViewModel
 import fdz.migue.housfyapp.features.tasks.TaskViewModel
@@ -38,7 +40,7 @@ fun HomeScreen(
     val tasks by taskViewModel.tasks.collectAsState(initial = emptyList())
 
     val today = LocalDate.now()
-    val userName = profile?.name ?: "Usuario"
+    val userName = profile?.name ?: stringResource(R.string.user_default_name)
     val pendingTasks = tasks.count { !it.isDone }
 
     val upcomingEvents = events
@@ -53,10 +55,10 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
-            HomeCard("¡Bienvenid@ a Housfy, $userName!")
+            HomeCard(stringResource(R.string.home_welcome) + userName + stringResource(R.string.home_welcome_final))
         }
         item {
-            HomeCard("Tienes $pendingTasks tareas pendientes")
+            HomeCard(stringResource(R.string.home_task_summary)+ pendingTasks + stringResource(R.string.home_task_summary_final))
         }
         item {
             RoundedBackground(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
@@ -64,9 +66,9 @@ fun HomeScreen(
                     modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Próximas actividades", fontSize = 25.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    Text(stringResource(R.string.home_activities_summary_title), fontSize = 25.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     if (upcomingEvents.isEmpty()) {
-                        Text("No tienes actividades pronto", fontStyle = FontStyle.Italic, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.home_activities_summary_no_activities), fontStyle = FontStyle.Italic, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     } else {
                         upcomingEvents.forEach { event ->
                             Box(

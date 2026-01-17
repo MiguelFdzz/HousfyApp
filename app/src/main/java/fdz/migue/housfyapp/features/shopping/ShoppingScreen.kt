@@ -24,12 +24,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.ui.components.RoundedBackground
 
 @Composable
@@ -61,7 +63,7 @@ fun ShoppingScreen(
     ) {
         RoundedBackground {
             Text(
-                "Lista de la compra",
+                stringResource(R.string.shopping_title),
                 textAlign = TextAlign.Center,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold,
@@ -78,7 +80,7 @@ fun ShoppingScreen(
         ) {
             Icon(Icons.Default.Add, contentDescription = null)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Crear nuevo carrito")
+            Text(stringResource(R.string.shopping_new_cart))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -89,7 +91,7 @@ fun ShoppingScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "No hay carritos aún.\n¡Crea tu primer carrito!",
+                    stringResource(R.string.shopping_no_carts_1),
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -23,11 +23,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.dao.activities.CalendarEvent
 import fdz.migue.housfyapp.features.activities.calendar.CalendarView
 import fdz.migue.housfyapp.features.activities.event.CreateEventDialog
@@ -36,7 +39,6 @@ import fdz.migue.housfyapp.ui.components.RoundedBackground
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @Composable
 fun ActivitiesScreen(
@@ -48,6 +50,17 @@ fun ActivitiesScreen(
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
     var showCreateEventDialog by remember { mutableStateOf(false) }
 
+    val configuration = LocalConfiguration.current
+    val currentLocale = configuration.locales[0]
+
+    val dateFormatter = remember(currentLocale) {
+        val pattern = when (currentLocale.language) {
+            "es" -> "d 'de' MMMM"
+            else -> "MMMM d"
+        }
+        DateTimeFormatter.ofPattern(pattern, currentLocale)
+    }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
@@ -58,7 +71,7 @@ fun ActivitiesScreen(
             RoundedBackground(modifier = Modifier.padding(bottom = 16.dp)) {
                 Column {
                     Text(
-                        "Actividades y Eventos",
+                        stringResource(R.string.activities_title),
                         textAlign = TextAlign.Center,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold,
@@ -94,8 +107,9 @@ fun ActivitiesScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
+                            val formattedDate = date.format(dateFormatter)
                             Text(
-                                "Eventos del ${date.format(DateTimeFormatter.ofPattern("d 'de' MMMM", Locale("es", "ES")))}",
+                                stringResource(R.string.activities_events_at) + formattedDate,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -113,7 +127,7 @@ fun ActivitiesScreen(
 
                         if (dayEvents.isEmpty()) {
                             Text(
-                                "No hay eventos para este día",
+                                stringResource(R.string.activities_no_events),
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()

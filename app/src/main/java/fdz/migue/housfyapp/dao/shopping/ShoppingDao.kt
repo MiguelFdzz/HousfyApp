@@ -27,4 +27,7 @@ interface ShoppingDao {
 
     @Query("DELETE FROM shopping_carts WHERE id = :id")
     suspend fun deleteCartById(id: String)
+
+    @Query("DELETE FROM shopping_carts")
+    suspend fun deleteAll()
 }

@@ -26,4 +26,7 @@ interface CalendarEventDao {
 
     @Query("DELETE FROM calendar_events WHERE id = :eventId")
     suspend fun deleteEventById(eventId: String)
+
+    @Query("DELETE FROM calendar_events")
+    suspend fun deleteAll()
 }

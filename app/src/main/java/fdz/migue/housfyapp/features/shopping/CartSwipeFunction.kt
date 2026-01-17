@@ -33,9 +33,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.dao.shopping.ShoppingCart
 import kotlin.math.roundToInt
 
@@ -115,7 +117,7 @@ fun SwipeToDeleteCart(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        if (cart.content.isBlank()) "Vacío" else "${cart.content.lines().size} líneas",
+                        if (cart.content.isBlank()) stringResource(R.string.shopping_cart_empty) else "${cart.content.lines().size}" + stringResource(R.string.shopping_cart_lines),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

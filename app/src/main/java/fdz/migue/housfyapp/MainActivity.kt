@@ -2,8 +2,12 @@
 
 package fdz.migue.housfyapp
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivityResultRegistryOwner
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
@@ -14,6 +18,8 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -22,11 +28,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import fdz.migue.housfyapp.dao.ClearDataRepository
 import fdz.migue.housfyapp.dao.HousfyDatabase
 import fdz.migue.housfyapp.dao.activities.CalendarEventRepositoryImpl
 import fdz.migue.housfyapp.dao.chat.ChatRepositoryImpl
@@ -40,10 +46,16 @@ import fdz.migue.housfyapp.features.chat.ChatScreen
 import fdz.migue.housfyapp.features.chat.ChatViewModel
 import fdz.migue.housfyapp.features.chat.ChatViewModelFactory
 import fdz.migue.housfyapp.features.home.HomeScreen
+import fdz.migue.housfyapp.features.language.LanguageDataStore
+import fdz.migue.housfyapp.features.language.LanguageViewModel
+import fdz.migue.housfyapp.features.language.LanguageViewModelFactory
+import fdz.migue.housfyapp.features.language.updateLocale
 import fdz.migue.housfyapp.features.profile.PEditScreen
 import fdz.migue.housfyapp.features.profile.ProfileViewModel
 import fdz.migue.housfyapp.features.profile.ProfileViewModelFactory
 import fdz.migue.housfyapp.features.settings.SettingsScreen
+import fdz.migue.housfyapp.features.settings.SettingsViewModel
+import fdz.migue.housfyapp.features.settings.SettingsViewModelFactory
 import fdz.migue.housfyapp.features.shopping.ShoppingScreen
 import fdz.migue.housfyapp.features.shopping.ShoppingViewModel
 import fdz.migue.housfyapp.features.shopping.ShoppingViewModelFactory
@@ -55,24 +67,56 @@ import fdz.migue.housfyapp.ui.drawer.DrawerContent
 import fdz.migue.housfyapp.ui.theme.HousfyAppTheme
 import kotlinx.coroutines.launch
 
+class LocalizedContextWrapper(
+    private val localizedContext: Context,
+    private val baseActivity: ComponentActivity
+) : ContextWrapper(localizedContext) {
+
+    // Cuando se busque la Activity, devolvemos la original (que tiene el Registry)
+    override fun getSystemService(name: String): Any? {
+        return when (name) {
+            Context.ACTIVITY_SERVICE -> baseActivity
+            else -> localizedContext.getSystemService(name)
+        }
+    }
+}
 class MainActivity : ComponentActivity() {
+    @SuppressLint("ContextCastToActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PantallaPrincipal()
+            val context = LocalContext.current.applicationContext
+            val languageDataStore = remember { LanguageDataStore(context) }
+
+            val languageViewModel: LanguageViewModel = viewModel(
+                factory = LanguageViewModelFactory(languageDataStore)
+            )
+
+            val lang by languageViewModel.language.collectAsState()
+            val localizedContext = this.updateLocale(lang)
+
+            val wrappedContext = remember(localizedContext) {
+                LocalizedContextWrapper(localizedContext, this@MainActivity)
+            }
+
+            val activityResultRegistryOwner = LocalActivityResultRegistryOwner.current
+
+            CompositionLocalProvider(
+                LocalContext provides wrappedContext,
+                LocalActivityResultRegistryOwner provides activityResultRegistryOwner!!
+            ) {
+                PantallaPrincipal(languageViewModel = languageViewModel)
+            }
         }
     }
 }
 
-@Preview
 @Composable
-fun Preview(){
-    PantallaPrincipal()
-}
-
-@Composable
-fun PantallaPrincipal(modifier: Modifier = Modifier){
+fun PantallaPrincipal(
+    languageViewModel: LanguageViewModel,
+    modifier: Modifier = Modifier
+){
 
     val context = LocalContext.current.applicationContext
 
@@ -118,6 +162,13 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
             factory = ChatViewModelFactory(chatRepository)
         )
 
+        val clearDataRepository = remember {
+            ClearDataRepository(database)
+        }
+        val settingsViewModel: SettingsViewModel = viewModel(
+            factory = SettingsViewModelFactory(clearDataRepository)
+        )
+
         val drawerState = rememberDrawerState(
             initialValue = DrawerValue.Closed
         )
@@ -159,7 +210,9 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
                     modifier = Modifier.padding(padding)
                 ) {
                     composable("profileedit") {
-                        PEditScreen(viewModel = profileViewModel)
+                        PEditScreen(
+                            viewModel = profileViewModel,
+                        )
                     }
                     composable("home") {
                         HomeScreen(
@@ -181,7 +234,12 @@ fun PantallaPrincipal(modifier: Modifier = Modifier){
                             viewModel = chatViewModel,
                             profileViewModel = profileViewModel)
                     }
-                    composable("conf") { SettingsScreen() }
+                    composable("conf") {
+                        SettingsScreen(
+                            languageViewModel = languageViewModel,
+                            onClearData = { settingsViewModel.clearAllData() }
+                        )
+                    }
                 }
             }
         }

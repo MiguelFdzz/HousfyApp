@@ -26,7 +26,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.features.profile.ProfileViewModel
 
 @Composable
@@ -38,7 +40,7 @@ fun ChatScreen(
     val messages by viewModel.messages.collectAsState()
     val profile by profileViewModel.profile.collectAsState(initial = null)
 
-    val userName = profile?.name ?: "Usuario"
+    val userName = profile?.name ?: stringResource(R.string.user_default_name)
     val userPhoto = profile?.profileImageUri
 
     var messageText by remember { mutableStateOf("") }
@@ -70,7 +72,7 @@ fun ChatScreen(
                 value = messageText,
                 onValueChange = { messageText = it },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text("Escribe un mensaje") },
+                placeholder = { Text(stringResource(R.string.chat_placeholder)) },
                 shape = RoundedCornerShape(24.dp)
             )
 

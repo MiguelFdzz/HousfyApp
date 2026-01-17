@@ -14,10 +14,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.R
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 
 @Composable
@@ -29,19 +31,29 @@ fun CreateEventDialog(
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
 
+    val configuration = LocalConfiguration.current
+    val currentLocale = configuration.locales[0]
+
+    val dateFormatter = remember(currentLocale) {
+        val pattern = when (currentLocale.language) {
+            "es" -> "d 'de' MMMM"
+            else -> "MMMM d"
+        }
+        DateTimeFormatter.ofPattern(pattern, currentLocale)
+    }
+    val formattedDate = date.format(dateFormatter)
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Nuevo Evento para ${date.format(DateTimeFormatter.ofPattern("d 'de' MMMM",
-                Locale("es", "ES")
-            ))}")
+            Text(stringResource(R.string.activities_new_event_title) + formattedDate)
         },
         text = {
             Column {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Título") },
+                    label = { Text(stringResource(R.string.activities_new_activity_title)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -49,7 +61,7 @@ fun CreateEventDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Descripción (opcional)") },
+                    label = { Text(stringResource(R.string.activities_new_activity_description)) },
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 3
                 )
@@ -64,12 +76,12 @@ fun CreateEventDialog(
                 },
                 enabled = title.isNotBlank()
             ) {
-                Text("Guardar")
+                Text(stringResource(R.string.activities_new_activity_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.activities_new_activity_cancel))
             }
         }
     )

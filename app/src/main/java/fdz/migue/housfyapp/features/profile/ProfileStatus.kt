@@ -1,5 +1,6 @@
 package fdz.migue.housfyapp.features.profile
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,9 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fdz.migue.housfyapp.R
 
 @Composable
 fun StatusOption(
@@ -60,7 +63,7 @@ fun StatusOption(
             )
 
             Text(
-                text = status.label,
+                text = stringResource(status.label),
                 fontSize = 16.sp,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                 color = if (isSelected) colors.onPrimaryContainer else colors.onSurface,
@@ -81,8 +84,8 @@ fun StatusOption(
     }
 }
 
-enum class UserStatus(val label: String, val color: Color) {
-    ACTIVO("Activo", Color.Green),
-    AUSENTE("Ausente", Color.Yellow),
-    INVISIBLE("Invisible", Color.Gray)
+enum class UserStatus(@StringRes val label: Int, val color: Color) {
+    ACTIVO(R.string.pedit_active, Color.Green),
+    AUSENTE(R.string.pedit_idle, Color.Yellow),
+    INVISIBLE(R.string.pedit_invisible, Color.Gray)
 }

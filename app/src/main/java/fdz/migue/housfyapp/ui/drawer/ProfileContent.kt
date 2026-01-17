@@ -23,9 +23,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.features.profile.ProfileViewModel
 import fdz.migue.housfyapp.features.profile.UserStatus
 
@@ -43,7 +45,7 @@ fun ProfileContent(
     ) {
         val profile by viewModel.profile.collectAsState(initial = null)
 
-        val name = profile?.name ?: "Usuario"
+        val name = profile?.name ?: stringResource(R.string.user_default_name)
         val photoUrl = profile?.profileImageUri
         val userStatus = runCatching {
             UserStatus.valueOf(profile?.status ?: UserStatus.ACTIVO.name)

@@ -24,8 +24,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.dao.shopping.ShoppingCart
 
 @Composable
@@ -93,14 +95,14 @@ fun CartEditorScreen(
                     .fillMaxSize()
                     .padding(16.dp),
                 placeholder = {
-                    Text(
-                        "Escribe aquí tu lista...\n\n" +
-                                "Puedes usar Markdown:\n" +
-                                "# Título\n" +
-                                "## Subtítulo\n" +
-                                "- Item\n" +
-                                "**negrita** *cursiva*"
-                    )
+                    Column() {
+                        Text(stringResource(R.string.shopping_cart_placeholder_1))
+                        Text(stringResource(R.string.shopping_cart_placeholder_2))
+                        Text(stringResource(R.string.shopping_cart_placeholder_3))
+                        Text(stringResource(R.string.shopping_cart_placeholder_4))
+                        Text(stringResource(R.string.shopping_cart_placeholder_5))
+                        Text(stringResource(R.string.shopping_cart_placeholder_6))
+                    }
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(
                     fontFamily = FontFamily.Monospace

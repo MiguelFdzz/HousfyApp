@@ -1,5 +1,6 @@
 package fdz.migue.housfyapp.features.profile
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
@@ -43,23 +44,26 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.dao.profile.Profile
 import fdz.migue.housfyapp.ui.components.RoundedBackground
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun PEditScreen(
     viewModel: ProfileViewModel,
     modifier: Modifier = Modifier
 ) {
     val profile by viewModel.profile.collectAsState(initial = null)
-
-    var name by remember { mutableStateOf("Usuario") }
+    val namePlace = stringResource(R.string.user_default_name)
+    var name by remember { mutableStateOf(namePlace) }
     var selectedStatus by remember { mutableStateOf(UserStatus.ACTIVO) }
     var profileImageUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -96,7 +100,7 @@ fun PEditScreen(
         item {
             RoundedBackground(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    "¡Bienvenid@ al editor del perfil",
+                    stringResource(R.string.pedit_welcome),
                     fontSize = 25.sp,
                     textAlign = TextAlign.Center
                 )
@@ -171,7 +175,7 @@ fun PEditScreen(
                             .padding(bottom = 24.dp)
                     ) {
                         Text(
-                            text = "Nombre",
+                            text = stringResource(R.string.pedit_name),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.DarkGray,
@@ -181,7 +185,7 @@ fun PEditScreen(
                             value = name,
                             onValueChange = { name = it },
                             modifier = Modifier.fillMaxWidth(),
-                            placeholder = { Text("Ingresa tu nombre") },
+                            placeholder = { Text(stringResource(R.string.pedit_name_placeholder)) },
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color.Blue,
@@ -196,7 +200,7 @@ fun PEditScreen(
                             .padding(bottom = 24.dp)
                     ) {
                         Text(
-                            text = "Estado",
+                            text = stringResource(R.string.pedit_state),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = Color.DarkGray,
@@ -212,12 +216,13 @@ fun PEditScreen(
                             )
                         }
                     }
-
+                    val namer = stringResource(R.string.pedit_name_placeholder)
+                    val success = stringResource(R.string.pedit_success_save)
                     Button(
                         onClick = {
                             val newProfile = Profile(
                                 id = profile?.id ?: 0,
-                                name = name.ifBlank { "Usuario" },
+                                name = name.ifBlank { namer },
                                 status = selectedStatus.name,
                                 profileImageUri = profileImageUri?.toString()
                             )
@@ -226,7 +231,7 @@ fun PEditScreen(
 
                             Toast.makeText(
                                 context,
-                                "Perfil guardado correctamente",
+                                success,
                                 Toast.LENGTH_SHORT
                             ).show()
                         },
@@ -239,7 +244,7 @@ fun PEditScreen(
                         )
                     ) {
                         Text(
-                            text = "Guardar Cambios",
+                            text = stringResource(R.string.pedit_save),
                             color = Color.White,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
@@ -252,7 +257,7 @@ fun PEditScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = "Vista Previa",
+                            text = stringResource(R.string.pedit_preview),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(bottom = 16.dp)
@@ -314,12 +319,12 @@ fun PEditScreen(
                                 modifier = Modifier.padding(start = 16.dp)
                             ) {
                                 Text(
-                                    text = name.ifEmpty { "Usuario" },
+                                    text = name.ifEmpty { namer },
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
                                 Text(
-                                    text = selectedStatus.label,
+                                    text = stringResource(selectedStatus.label),
                                     fontSize = 14.sp,
                                     color = Color.Gray
                                 )

@@ -11,10 +11,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.dao.tasks.Task
 import fdz.migue.housfyapp.ui.components.RoundedBackground
 
@@ -27,6 +29,8 @@ fun TaskScreen(
         .collectAsState(initial = emptyList())
         .value
 
+    val newTask = stringResource(R.string.tasks_new)
+
     RoundedBackground(
         modifier = modifier.padding(16.dp)
     ) {
@@ -37,7 +41,7 @@ fun TaskScreen(
 
             item {
                 Text(
-                    "Lista de Tareas",
+                    stringResource(R.string.tasks_title),
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace
@@ -48,14 +52,14 @@ fun TaskScreen(
                 Button(
                     onClick = {
                         viewModel.insertTask(
-                            Task(text = "Nueva tarea")
+                            Task(text = newTask)
                         )
                     },
                     modifier = Modifier
                         .padding(8.dp)
                         .fillMaxWidth(0.8f)
                 ) {
-                    Text("➕ Crear Tarea")
+                    Text("➕ " + stringResource(R.string.tasks_create))
                 }
             }
 

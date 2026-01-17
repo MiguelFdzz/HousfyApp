@@ -10,9 +10,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.dao.activities.CalendarEvent
 import java.time.LocalDate
 import java.time.YearMonth
@@ -39,7 +41,7 @@ fun CalendarView(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            listOf("L", "M", "X", "J", "V", "S", "D").forEach { day ->
+            listOf(stringResource(R.string.activities_lunes), stringResource(R.string.activities_martes), stringResource(R.string.activities_miercoles), stringResource(R.string.activities_jueves), stringResource(R.string.activities_viernes), stringResource(R.string.activities_sabado), stringResource(R.string.activities_domingo)).forEach { day ->
                 Text(
                     text = day,
                     fontWeight = FontWeight.Bold,

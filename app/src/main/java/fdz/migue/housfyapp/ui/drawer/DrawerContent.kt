@@ -14,7 +14,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import fdz.migue.housfyapp.R
 import fdz.migue.housfyapp.features.profile.ProfileViewModel
 import fdz.migue.housfyapp.ui.components.MenuItem
 
@@ -36,27 +38,27 @@ fun DrawerContent(
     ) {
         MenuItem(
             icon = Icons.Default.Home,
-            text = "Página de inicio",
+            text = stringResource(R.string.drawer_home),
             onClick = {onNavigate("home")}
         )
         MenuItem(
             icon = Icons.Default.AddCircle,
-            text = "Tareas",
+            text = stringResource(R.string.drawer_tasks),
             onClick = {onNavigate("tasks")}
         )
         MenuItem(
             icon = Icons.Default.DateRange,
-            text = "Actividades",
+            text = stringResource(R.string.drawer_activities),
             onClick = {onNavigate("activities")}
         )
         MenuItem(
             icon = Icons.Default.ShoppingCart,
-            text = "Lista de la compra",
+            text = stringResource(R.string.drawer_shopping),
             onClick = {onNavigate("shopping")}
         )
         MenuItem(
             icon = Icons.Default.MailOutline,
-            text = "Chat Grupal",
+            text = stringResource(R.string.drawer_chat),
             onClick = {onNavigate("chat")}
         )
 
@@ -65,7 +67,7 @@ fun DrawerContent(
 
         MenuItem(
             icon = Icons.Default.Settings,
-            text = "Configuración",
+            text = stringResource(R.string.drawer_config),
             onClick = {onNavigate("conf")}
         )
     }

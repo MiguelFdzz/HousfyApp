@@ -11,6 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import fdz.migue.housfyapp.R
 
 @Composable
 fun CreateCartDialog(
@@ -21,12 +23,12 @@ fun CreateCartDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Crear nuevo carrito") },
+        title = { Text(stringResource(R.string.shopping_new_cart)) },
         text = {
             OutlinedTextField(
                 value = cartName,
                 onValueChange = { cartName = it },
-                label = { Text("Nombre del carrito") },
+                label = { Text(stringResource(R.string.shopping_new_cart_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -36,12 +38,12 @@ fun CreateCartDialog(
                 onClick = { if (cartName.isNotBlank()) onConfirm(cartName) },
                 enabled = cartName.isNotBlank()
             ) {
-                Text("Crear")
+                Text(stringResource(R.string.shopping_new_cart_save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.shopping_new_cart_cancel))
             }
         }
     )
