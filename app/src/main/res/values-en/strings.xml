@@ -37,7 +37,7 @@
     <string name="activities_new_activity_save">Save</string>
     <string name="shopping_title">Shopping list</string>
     <string name="shopping_new_cart">Create new cart</string>
-    <string name="shopping_no_carts_1">No carts yet \\n Create your first cart!</string>
+    <string name="shopping_no_carts_1">No carts yet \n Create your first cart!</string>
     <string name="shopping_no_carts_2">Create your first cart!</string>
     <string name="shopping_new_cart_name">Cart name</string>
     <string name="shopping_new_cart_cancel">Cancel</string>

@@ -36,7 +36,7 @@
     <string name="activities_new_activity_save">Guardar</string>
     <string name="shopping_title">Lista de la compra</string>
     <string name="shopping_new_cart">Crear nuevo carrito</string>
-    <string name="shopping_no_carts_1">No hay carritos aún. \\n ¡Crea tu primer carrito!</string>
+    <string name="shopping_no_carts_1">No hay carritos aún. \n ¡Crea tu primer carrito!</string>
     <string name="shopping_no_carts_2">¡Crea tu primer carrito!</string>
     <string name="shopping_new_cart_name">Nombre del carrito</string>
     <string name="shopping_new_cart_cancel">Cancelar</string>
